@@ -1,18 +1,67 @@
+/* eslint-disable react/prop-types */
+import React from 'react'
+import MovieService from '../../services/movie-service'
+import Error from '../error/error'
+import Spinner from '../spinner/spinner'
 import './movie-info.scss'
 
-const MovieInfo = () => {
-	return (
-		<div className='movieinfo'>
-			<img src='/image1.svg' alt='movie' />
-			<div className='movieinfo__descr'>
-				<h1>Movie Title</h1>
-				<p>
-					Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic dolor
-					officia fugiat odio unde architecto laboriosam facere harum soluta
-					vero nobis aliquid quis omnis illum veniam modi tempora, quam porro!
-				</p>
+class MovieInfo extends React.Component {
+
+	state = {
+		movie:null,
+		loading: true,
+		error:false
+	}
+
+	movieService = new MovieService();
+
+	componentDidMount(){
+		this.updateMovie()
+	}
+
+	updateMovie = () => {
+		const {movieId} = this.props;
+
+		if(!movieId){
+			this.setState({error:false})
+		}
+
+		this.movieService.getDetailMovies(movieId)
+		.then(res => this.setState({movie:res}))
+		.catch(()=> this.setState({error:true}))
+		.finally(()=> this.setState({loading:false}))
+	}
+
+	render(){
+		const {movie, loading, error} = this.state;
+
+		const errorContent = error ? <Error/> : null
+		const loadingContent = loading ? <Spinner /> : null
+		const content = !( error || loading ) ? <Content movie={movie} isMain={this.props.isMain} /> : null
+
+		return (
+			<div className='movieinfo'>
+				{errorContent}
+				{loadingContent}
+				{content}
 			</div>
-		</div>
+		)
+	}
+}
+
+const Content = ({movie, isMain}) =>{
+
+	return (
+		<>
+			<img src={isMain ? movie.poster_path : movie.backdrop_path} alt='img' />
+			<div className='app__hero-movie__descr'>
+				<h2>{movie.name}</h2>
+				<p>
+					{movie.description}
+				</p>
+			
+			</div>
+		</>
 	)
 }
 

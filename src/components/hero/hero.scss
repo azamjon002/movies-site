@@ -36,6 +36,11 @@
 			button {
 				width: fit-content;
 			}
+
+			div{
+				display: flex;
+				gap: 10px;
+			}
 		}
 
 		&-movie {
@@ -46,7 +51,7 @@
 
 			img {
 				width: 100%;
-				height: 65%;
+				height: 75%;
 				object-fit: cover;
 				border-top-right-radius: 5px;
 				border-top-left-radius: 5px;
@@ -65,11 +70,6 @@
 					line-height: normal;
 				}
 
-				div {
-					display: grid;
-					grid-template-columns: 1fr 1fr;
-					gap: 10px;
-				}
 			}
 		}
 	}

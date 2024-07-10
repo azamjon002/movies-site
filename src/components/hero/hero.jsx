@@ -1,8 +1,10 @@
 /* eslint-disable react/jsx-no-undef */
 /* eslint-disable react/prop-types */
 import React from 'react'
+import Modal from 'react-responsive-modal'
 import MovieService from '../../services/movie-service'
 import Error from '../error/error'
+import MovieInfo from '../movie-info/movie-info'
 import Spinner from '../spinner/spinner'
 import './hero.scss'
 
@@ -14,17 +16,25 @@ class Hero extends React.Component {
 		this.state = {
 			movie:{},
 			loading: true,
-			error: false
+			error: false,
+			open: false
 		}
 
 		this.movieService = new MovieService();
 	}
 
 	componentDidMount(){
-		this.getMovie();	
+		this.updateMovie();	
 	}
 
-	getMovie = () => {
+	onClose = () => this.setState({open:false})
+
+	onOpen = () => this.setState({open:true})
+
+	updateMovie = () => {
+
+		this.setState({loading:true})
+
 		this.movieService.getRandomMovie()
 		.then(res => this.setState({movie:res}))
 		.catch( () => this.setState({error:true}))
@@ -32,11 +42,11 @@ class Hero extends React.Component {
 	}
 
 	render(){
-		const {movie, loading, error} = this.state;
+		const {movie, loading, error, open} = this.state;
 
 		const errorContent = error ? <Error/> : null
 		const loadingContent = loading ? <Spinner /> : null
-		const content = !( error || loading ) ? <Content movie={movie} /> : null
+		const content = !( error || loading ) ? <Content movie={movie} open={open} onClose={this.onClose} onOpen={this.onOpen}/> : null
 
 		return (
 			<div className='app__hero'>
@@ -49,7 +59,9 @@ class Hero extends React.Component {
 						sequi odit doloremque velit saepe autem facilis! Laudantium
 						consequatur accusantium mollitia.
 					</p>
-					<button className='btn btn__primary'>DETAILS</button>
+					<div>
+						<button className='btn btn__secondary' onClick={this.updateMovie}>RANDOM MOVIE</button>
+					</div>
 				</div>
 				<div className='app__hero-movie'>
 					{ errorContent }
@@ -64,7 +76,7 @@ class Hero extends React.Component {
 export default Hero
 
 
-const Content = ({movie}) => {
+const Content = ({movie, open, onClose, onOpen}) => {
 	
 	return (
 		<>
@@ -74,11 +86,12 @@ const Content = ({movie}) => {
 				<p>
 					{movie.description && movie.description.length >= 250 ? `${movie.description.slice(0,250)} ...` : movie.description}
 				</p>
-				<div>
-					<button className='btn btn__secondary'>RANDOM MOVIE</button>
-					<button className='btn btn__primary'>DETAILS</button>
-				</div>
+				<button className='btn btn__primary' style={{width:"100%"}} onClick={onOpen}>DETAILS</button>
 			</div>
+
+			<Modal open={open} onClose={onClose}>
+				<MovieInfo movieId={movie.id} isMain={true} />
+			</Modal>
 		</>
 	)
 }
