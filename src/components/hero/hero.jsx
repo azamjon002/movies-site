@@ -1,5 +1,4 @@
-/* eslint-disable react/jsx-no-undef */
-/* eslint-disable react/prop-types */
+
 import React from 'react'
 import Modal from 'react-responsive-modal'
 import MovieService from '../../services/movie-service'
@@ -7,46 +6,47 @@ import Error from '../error/error'
 import MovieInfo from '../movie-info/movie-info'
 import Spinner from '../spinner/spinner'
 import './hero.scss'
+import PropTypes from 'prop-types';
 
 class Hero extends React.Component {
-	
-	constructor(props){
-		super(props);
+
+	constructor(props) {
+		super(props)
 
 		this.state = {
-			movie:{},
+			movie: {},
 			loading: true,
 			error: false,
 			open: false
 		}
 
-		this.movieService = new MovieService();
+		this.movieService = new MovieService()
 	}
 
-	componentDidMount(){
-		this.updateMovie();	
+	componentDidMount() {
+		this.updateMovie()
 	}
 
-	onClose = () => this.setState({open:false})
+	onClose = () => this.setState({ open: false });
 
-	onOpen = () => this.setState({open:true})
+	onOpen = () => this.setState({ open: true });
 
 	updateMovie = () => {
 
-		this.setState({loading:true})
+		this.setState({ loading: true })
 
 		this.movieService.getRandomMovie()
-		.then(res => this.setState({movie:res}))
-		.catch( () => this.setState({error:true}))
-		.finally( () => this.setState({loading:false}));
-	}
+			.then(res => this.setState({ movie: res }))
+			.catch(() => this.setState({ error: true }))
+			.finally(() => this.setState({ loading: false }))
+	};
 
-	render(){
-		const {movie, loading, error, open} = this.state;
+	render() {
+		const { movie, loading, error, open } = this.state
 
-		const errorContent = error ? <Error/> : null
+		const errorContent = error ? <Error /> : null
 		const loadingContent = loading ? <Spinner /> : null
-		const content = !( error || loading ) ? <Content movie={movie} open={open} onClose={this.onClose} onOpen={this.onOpen}/> : null
+		const content = !(error || loading) ? <Content movie={movie} open={open} onClose={this.onClose} onOpen={this.onOpen} /> : null
 
 		return (
 			<div className='app__hero'>
@@ -64,9 +64,9 @@ class Hero extends React.Component {
 					</div>
 				</div>
 				<div className='app__hero-movie'>
-					{ errorContent }
-					{ loadingContent }
-					{ content }
+					{errorContent}
+					{loadingContent}
+					{content}
 				</div>
 			</div>
 		)
@@ -94,4 +94,16 @@ const Content = ({movie, open, onClose, onOpen}) => {
 			</Modal>
 		</>
 	)
+}
+
+Content.propTypes = {
+	movie: {
+		backdrop_path: PropTypes.string,
+		name: PropTypes.string,
+		description: PropTypes.string,
+		id: PropTypes.number
+	},
+	open: PropTypes.bool,
+	onClose: PropTypes.func,
+	onOpen: PropTypes.func,
 }

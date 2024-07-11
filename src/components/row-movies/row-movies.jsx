@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react'
 import { Modal } from 'react-responsive-modal'
 import 'react-responsive-modal/styles.css'
@@ -13,8 +14,10 @@ class RowMovies extends React.Component {
 		open: false,
 		movies: [],
 		error: false,
-		loading: false,
-		movieId: null
+		loading: true,
+		movieId: null,
+		page:2,
+		newItemLoading: false
 	}
 
 
@@ -29,15 +32,27 @@ class RowMovies extends React.Component {
 	onOpen = (id) => this.setState({open:true, movieId:id})
 
 
-	getTrandingMovies = () => {
-		this.movieService.getTrandingMovies()
-		.then(res => {this.setState({movies:res})})
+	getTrandingMovies = (page) => {
+		this.movieService.getTrandingMovies(page)
+		.then(res => {
+			this.setState(
+				({movies}) => ({movies: [...movies, ...res]})
+			)
+		})
 		.catch(() => {this.setState({error:true})})
-		.finally(() => {this.setState({loading:false})})
+		.finally(() => {this.setState({loading:false, newItemLoading:false})})
+	}
+
+	getMoreMovies = () => {
+		this.setState(({page}) => ({page:page+1, newItemLoading:true}));
+		this.getTrandingMovies(this.state.page)
 	}
 
 	render() {
-		const { open, movies, error, loading, movieId } = this.state
+		const { open, movies, error, loading, movieId, newItemLoading } = this.state
+		const errorContent = error ? <Error/> : null
+		const loadingContent = loading ? <Spinner /> : null
+		const content = !( error || loading ) ? <Content movies={movies} onOpen={this.onOpen}/> : null
 
 		return (
 			<div className='app__rowmovie'>
@@ -49,16 +64,14 @@ class RowMovies extends React.Component {
 					<div className='hr' />
 					<a href='#'>See more</a>
 				</div>
+				{errorContent}
+				{loadingContent}
+				{content}
 
-				<div className='app__rowmovie-lists'>
-					{movies.map((movie) => (
-						error ? <Error key={movie.id}/> : loading ? <Spinner />
-							: <RowMoviesItem
-								key={movie.id}
-								movie={movie}
-								onOpen={this.onOpen}
-							/>	
-					))}
+				<div className='app__rowmovie__loadmore'>
+					<button className='btn btn-secondary' onClick={this.getMoreMovies} disabled={newItemLoading}>
+						Load More
+					</button>
 				</div>
 
 				<Modal open={open} onClose={this.onClose}>
@@ -70,3 +83,17 @@ class RowMovies extends React.Component {
 }
 
 export default RowMovies
+
+const Content = ({movies, onOpen}) => {
+	return (
+		<div className='app__rowmovie-lists'>
+			{movies.map((movie) => (
+				<RowMoviesItem
+					key={movie.id}
+					movie={movie}
+					onOpen={onOpen}
+				/>	
+			))}
+		</div>
+	)
+}
