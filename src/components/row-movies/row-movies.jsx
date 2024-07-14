@@ -21,7 +21,7 @@ const RowMovies = () =>  {
 	const movieService = new MovieService()
 	
 	useEffect(() => {
-		getTrandingMovies(page);
+		getTrandingMovies();
 	},[])
 
 
