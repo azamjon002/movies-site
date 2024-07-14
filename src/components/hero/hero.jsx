@@ -1,5 +1,4 @@
-
-import React from 'react'
+import { useEffect, useState } from 'react'
 import Modal from 'react-responsive-modal'
 import MovieService from '../../services/movie-service'
 import Error from '../error/error'
@@ -8,69 +7,59 @@ import Spinner from '../spinner/spinner'
 import './hero.scss'
 import PropTypes from 'prop-types';
 
-class Hero extends React.Component {
+const Hero = () => {
 
-	constructor(props) {
-		super(props)
+	const [movie, setMovie] = useState(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(false);
+	const [open, setOpen] = useState(false)	
 
-		this.state = {
-			movie: {},
-			loading: true,
-			error: false,
-			open: false
-		}
+	const movieService = new MovieService()
+	
+	useEffect(() => {
+		updateMovie();
+	},[])
 
-		this.movieService = new MovieService()
-	}
+	const updateMovie = () => {
 
-	componentDidMount() {
-		this.updateMovie()
-	}
+		setLoading(true)
 
-	onClose = () => this.setState({ open: false });
-
-	onOpen = () => this.setState({ open: true });
-
-	updateMovie = () => {
-
-		this.setState({ loading: true })
-
-		this.movieService.getRandomMovie()
-			.then(res => this.setState({ movie: res }))
-			.catch(() => this.setState({ error: true }))
-			.finally(() => this.setState({ loading: false }))
+		movieService.getRandomMovie()
+			.then(res => setMovie(res))
+			.catch(() => setError(true))
+			.finally(() => setLoading(false))
 	};
 
-	render() {
-		const { movie, loading, error, open } = this.state
+	const onClose = () => {setOpen(false)};
 
-		const errorContent = error ? <Error /> : null
-		const loadingContent = loading ? <Spinner /> : null
-		const content = !(error || loading) ? <Content movie={movie} open={open} onClose={this.onClose} onOpen={this.onOpen} /> : null
+	const onOpen = () => setOpen(true);
 
-		return (
-			<div className='app__hero'>
-				<div className='app__hero-info'>
-					<h2>FIND MOVIES</h2>
-					<h1>TV shows and more</h1>
-					<p>
-						Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum
-						sapiente sit placeat minus dolorum, magnam, tempora quas neque quasi,
-						sequi odit doloremque velit saepe autem facilis! Laudantium
-						consequatur accusantium mollitia.
-					</p>
-					<div>
-						<button className='btn btn__secondary' onClick={this.updateMovie}>RANDOM MOVIE</button>
-					</div>
-				</div>
-				<div className='app__hero-movie'>
-					{errorContent}
-					{loadingContent}
-					{content}
+	const errorContent = error ? <Error /> : null
+	const loadingContent = loading ? <Spinner /> : null
+	const content = !(error || loading) ? <Content movie={movie} open={open} onClose={onClose} onOpen={onOpen} /> : null
+
+	return (
+		<div className='app__hero'>
+			<div className='app__hero-info'>
+				<h2>FIND MOVIES</h2>
+				<h1>TV shows and more</h1>
+				<p>
+					Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum
+					sapiente sit placeat minus dolorum, magnam, tempora quas neque quasi,
+					sequi odit doloremque velit saepe autem facilis! Laudantium
+					consequatur accusantium mollitia.
+				</p>
+				<div>
+					<button className='btn btn__secondary' onClick={updateMovie}>RANDOM MOVIE</button>
 				</div>
 			</div>
-		)
-	}
+			<div className='app__hero-movie'>
+				{errorContent}
+				{loadingContent}
+				{content}
+			</div>
+		</div>
+	)
 }
 
 export default Hero
@@ -90,19 +79,14 @@ const Content = ({movie, open, onClose, onOpen}) => {
 			</div>
 
 			<Modal open={open} onClose={onClose}>
-				<MovieInfo movieId={movie.id} isMain={true} />
+				<MovieInfo movieId={movie.id} />
 			</Modal>
 		</>
 	)
 }
 
 Content.propTypes = {
-	movie: {
-		backdrop_path: PropTypes.string,
-		name: PropTypes.string,
-		description: PropTypes.string,
-		id: PropTypes.number
-	},
+	movie: PropTypes.object,
 	open: PropTypes.bool,
 	onClose: PropTypes.func,
 	onOpen: PropTypes.func,
