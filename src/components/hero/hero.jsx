@@ -6,28 +6,22 @@ import MovieInfo from '../movie-info/movie-info'
 import Spinner from '../spinner/spinner'
 import './hero.scss'
 import PropTypes from 'prop-types';
+import useMovieService from '../../services/movie-service'
 
 const Hero = () => {
 
 	const [movie, setMovie] = useState(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(false);
 	const [open, setOpen] = useState(false)	
 
-	const movieService = new MovieService()
+	const {getRandomMovie, error, loading, clearError} = useMovieService()
 	
 	useEffect(() => {
+		clearError()
 		updateMovie();
 	},[])
 
 	const updateMovie = () => {
-
-		setLoading(true)
-
-		movieService.getRandomMovie()
-			.then(res => setMovie(res))
-			.catch(() => setError(true))
-			.finally(() => setLoading(false))
+		getRandomMovie().then(res => setMovie(res))
 	};
 
 	const onClose = () => {setOpen(false)};
@@ -36,7 +30,7 @@ const Hero = () => {
 
 	const errorContent = error ? <Error /> : null
 	const loadingContent = loading ? <Spinner /> : null
-	const content = !(error || loading) ? <Content movie={movie} open={open} onClose={onClose} onOpen={onOpen} /> : null
+	const content = !(error || loading || !movie) ? <Content movie={movie} open={open} onClose={onClose} onOpen={onOpen} /> : null
 
 	return (
 		<div className='app__hero'>

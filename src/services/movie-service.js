@@ -1,54 +1,53 @@
-class MovieService {
-	_apiBase = 'https://api.themoviedb.org/3';
-	_apiLang = 'language=en-US';
-	_apiKey = 'api_key=e59cbe7bde4f1f664ed01bfdb2b9e81e';
-	_imageBaseUrl = 'https://image.tmdb.org/t/p/original';
-	_apiPage = 2;
+import { useHttp } from '../components/hooks/useHttp';
 
-	getResource = async (url) => {
-		const response = await fetch(url);
 
-		if(!response.ok){
-			return new Error(`Could not fetch ${url}, status: ${response.status}`)
-		}
+const useMovieService = () => {
+	
+	const {request, loading, error, clearError} = useHttp()
 
-		return await response.json();
-	}
+	const _apiBase = 'https://api.themoviedb.org/3';
+	const _apiLang = 'language=en-US';
+	const _apiKey = 'api_key=e59cbe7bde4f1f664ed01bfdb2b9e81e';
+	const _imageBaseUrl = 'https://image.tmdb.org/t/p/original';
+	const _apiPage = 2;
 
-	getPopularMovies = async () => {
-		return this.getResource(`${this._apiBase}/movie/popular?${this._apiLang}&${this._apiKey}`)
+
+	const getPopularMovies = async () => {
+		return await request(`${_apiBase}/movie/popular?${_apiLang}&${_apiKey}`)
 	}
 	
 	
-	getTrandingMovies = async (page = this._apiPage) => {
-		const response = await this.getResource(`${this._apiBase}/movie/top_rated?${this._apiLang}&page=${page}&${this._apiKey}`)
+	const getTrandingMovies = async (page = _apiPage) => {
+		const response = await request(`${_apiBase}/movie/top_rated?${_apiLang}&page=${page}&${_apiKey}`)
 		const movies = response.results;
 
-		return movies && movies.map(movie => this._transformMovie(movie))
+		return movies && movies.map(movie => _transformMovie(movie))
 	}
 	
-	getDetailMovies = async (id) => {
-		const movie = await this.getResource(`${this._apiBase}/movie/${id}?${this._apiLang}&${this._apiKey}`)
-		return this._transformMovie(movie)
+	const getDetailMovies = async (id) => {
+		const movie = await request(`${_apiBase}/movie/${id}?${_apiLang}&${_apiKey}`)
+		return _transformMovie(movie)
 	}
 
-	getRandomMovie = async () => {
-		const res = await this.getPopularMovies()
+	const getRandomMovie = async () => {
+		const res = await getPopularMovies()
 		const movie = res.results[Math.floor(Math.random() * res.results.length)];
-		return this._transformMovie(movie);
+		return _transformMovie(movie);
 	}
 
-	_transformMovie = (movie) => {
+	const _transformMovie = (movie) => {
 		return {
 			name: movie.original_title,
 			description: movie.overview,
-			backdrop_path: `${this._imageBaseUrl}${movie.backdrop_path}`,
-			poster_path: `${this._imageBaseUrl}${movie.poster_path}`,
+			backdrop_path: `${_imageBaseUrl}${movie.backdrop_path}`,
+			poster_path: `${_imageBaseUrl}${movie.poster_path}`,
 			id: movie.id,
 			release_date: movie.release_date,
 			vote_average: movie.vote_average
 		}
 	}
+
+	return {getTrandingMovies, getRandomMovie, getDetailMovies, loading, error, clearError}
 }
 
-export default MovieService;
+export default useMovieService;

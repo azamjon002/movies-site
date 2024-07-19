@@ -4,15 +4,14 @@ import Error from '../error/error'
 import Spinner from '../spinner/spinner'
 import './movie-info.scss'
 import PropTypes from 'prop-types';
+import useMovieService from '../../services/movie-service'
 
 
 const MovieInfo = ({movieId}) => {
 
 	const [movie, setMovie] = useState(null)
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState(false)
 
-	const movieService = new MovieService();
+	const {getDetailMovies, loading, error} = useMovieService();
 
 	useEffect(() => {
 		updateMovie()
@@ -22,19 +21,16 @@ const MovieInfo = ({movieId}) => {
 	const updateMovie = () => {
 		
 		if(!movieId){
-			setError(false)
+			return
 		}
 
-		movieService.getDetailMovies(movieId)
-		.then(res => setMovie(res))
-		.catch(()=> setError(true))
-		.finally(()=> setLoading(false))
+		getDetailMovies(movieId).then(res => setMovie(res))
 	}
 
 
 	const errorContent = error ? <Error/> : null
 	const loadingContent = loading ? <Spinner /> : null
-	const content = !( error || loading ) ? <Content movie={movie} isMain={true} /> : null
+	const content = !( error || loading || !movie ) ? <Content movie={movie} isMain={true} /> : null
 
 	return (
 		<div className='movieinfo'>

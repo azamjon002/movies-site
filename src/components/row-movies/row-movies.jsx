@@ -8,20 +8,19 @@ import MovieInfo from '../movie-info/movie-info'
 import RowMoviesItem from '../row-movies-item/row-movies-item'
 import Spinner from '../spinner/spinner'
 import './row-movies.scss'
+import useMovieService from '../../services/movie-service'
 
 const RowMovies = () =>  {
 	const [open, setOpen] = useState(false);
 	const [movies, setMovies] = useState([])
-	const [loading, setLoading] = useState(true)
-	const [error, setError] = useState(false)
 	const [movieId, setMovieId] = useState(null)
 	const [page, setPage] = useState(2)
 	const [newItemLoading, setNewItemLoading] = useState(false)
 
-	const movieService = new MovieService()
+	const {getTrandingMovies, loading, error, cle} =  useMovieService()
 	
 	useEffect(() => {
-		getTrandingMovies();
+		getMovies();
 	},[])
 
 
@@ -33,25 +32,22 @@ const RowMovies = () =>  {
 	};
 
 
-	const getTrandingMovies = (page) => {
-		movieService.getTrandingMovies(page)
+	const getMovies = (page, initial) => {
+		initial ? setNewItemLoading(false) : setNewItemLoading(true)
+
+		getTrandingMovies(page)
 		.then(res => setMovies(movies => [...movies, ...res]))
-		.catch(() => setError(true))
-		.finally(() => {
-			setLoading(false)
-			setNewItemLoading(false)
-		})
+		.finally(() => setNewItemLoading(false))
 	}
 
 	const getMoreMovies = () => {
 		setPage(page => page+1)
-		setNewItemLoading(true)
-		getTrandingMovies(page+1)
+		getMovies(page+1)
 	}
 
 	const errorContent = error ? <Error/> : null
 	const loadingContent = loading ? <Spinner /> : null
-	const content = !( error || loading ) ? <Content movies={movies} onOpen={onOpen}/> : null
+	
 
 	return (
 		<div className='app__rowmovie'>
@@ -65,7 +61,7 @@ const RowMovies = () =>  {
 			</div>
 			{errorContent}
 			{loadingContent}
-			{content}
+			<Content movies={movies} onOpen={onOpen}/>
 
 			<div className='app__rowmovie__loadmore'>
 				<button className='btn btn-secondary' onClick={getMoreMovies} disabled={newItemLoading}>
