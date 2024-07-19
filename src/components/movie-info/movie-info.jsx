@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import MovieService from '../../services/movie-service'
 import Error from '../error/error'
 import Spinner from '../spinner/spinner'
 import './movie-info.scss'
 import PropTypes from 'prop-types';
 import useMovieService from '../../services/movie-service'
+import { useNavigate } from 'react-router-dom'
 
 
 const MovieInfo = ({movieId}) => {
@@ -43,6 +43,7 @@ const MovieInfo = ({movieId}) => {
 
 const Content = ({movie, isMain = false}) =>{
 
+	const navigate = useNavigate();
 	return (
 		<>
 			<img src={isMain ? movie.poster_path : movie.backdrop_path} alt='img' />
@@ -51,7 +52,9 @@ const Content = ({movie, isMain = false}) =>{
 				<p>
 					{movie.description}
 				</p>
-			
+				<button className='btn btn-light' onClick={()=> navigate(`/movie/${movie.id}`)}>
+					More Details
+				</button>
 			</div>
 		</>
 	)
