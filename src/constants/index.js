@@ -1,4 +1,17 @@
-export const navbar_links = [{ label: 'Home', path:'/' }, { label: 'TV Shows', path: '/tv' }]
+export const navbar_links = [
+		{
+		 	label: 'Home',
+		  	path:'/' 
+		}, 
+		{
+			label: 'Popular', 
+			path: '/popular' 
+		},
+		{ 
+			label: 'Tranding', 
+			path: '/tranding' 
+		}
+	]
 
 export const movies = [
 	{

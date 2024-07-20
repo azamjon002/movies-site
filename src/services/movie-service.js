@@ -12,8 +12,10 @@ const useMovieService = () => {
 	const _apiPage = 2;
 
 
-	const getPopularMovies = async () => {
-		return await request(`${_apiBase}/movie/popular?${_apiLang}&${_apiKey}`)
+	const getPopularMovies = async (page = _apiPage) => {
+		const response = await request(`${_apiBase}/movie/popular?${_apiLang}&page=${page}&${_apiKey}`)
+		const movies = response.results;
+		return movies && movies.map(movie => _transformMovie(movie))
 	}
 	
 	
@@ -31,8 +33,8 @@ const useMovieService = () => {
 
 	const getRandomMovie = async () => {
 		const res = await getPopularMovies()
-		const movie = res.results[Math.floor(Math.random() * res.results.length)];
-		return _transformMovie(movie);
+		const movie = res[Math.floor(Math.random() * res.length)];
+		return movie
 	}
 
 	const _transformMovie = (movie) => {
@@ -47,7 +49,7 @@ const useMovieService = () => {
 		}
 	}
 
-	return {getTrandingMovies, getRandomMovie, getDetailMovies, loading, error, clearError}
+	return {getPopularMovies, getTrandingMovies, getRandomMovie, getDetailMovies, loading, error, clearError}
 }
 
 export default useMovieService;

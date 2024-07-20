@@ -18,6 +18,7 @@ module.exports = {
       { allowConstantExport: true },
     ],
     'react-hooks/exhaustive-deps':'off',
-    'no-unused-vars' : 'off'
+    'no-unused-vars' : 'off',
+    'no-mixed-spaces-and-tabs':'off'
   },
 }

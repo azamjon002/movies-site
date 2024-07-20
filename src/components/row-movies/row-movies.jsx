@@ -9,6 +9,7 @@ import RowMoviesItem from '../row-movies-item/row-movies-item'
 import Spinner from '../spinner/spinner'
 import './row-movies.scss'
 import useMovieService from '../../services/movie-service'
+import { useLocation } from 'react-router-dom'
 
 const RowMovies = () =>  {
 	const [open, setOpen] = useState(false);
@@ -17,7 +18,9 @@ const RowMovies = () =>  {
 	const [page, setPage] = useState(2)
 	const [newItemLoading, setNewItemLoading] = useState(false)
 
-	const {getTrandingMovies, loading, error, cle} =  useMovieService()
+	const {pathname} = useLocation()
+
+	const {getPopularMovies, getTrandingMovies, loading, error, cle} =  useMovieService()
 	
 	useEffect(() => {
 		getMovies();
@@ -35,9 +38,16 @@ const RowMovies = () =>  {
 	const getMovies = (page, initial) => {
 		initial ? setNewItemLoading(false) : setNewItemLoading(true)
 
-		getTrandingMovies(page)
-		.then(res => setMovies(movies => [...movies, ...res]))
-		.finally(() => setNewItemLoading(false))
+		if(pathname == '/popular'){
+			getPopularMovies(page)
+			.then(res => setMovies(movies => [...movies, ...res]))
+			.finally(() => setNewItemLoading(false))
+		}else{
+			getTrandingMovies(page)
+			.then(res => setMovies(movies => [...movies, ...res]))
+			.finally(() => setNewItemLoading(false))
+		}
+		
 	}
 
 	const getMoreMovies = () => {
@@ -54,7 +64,7 @@ const RowMovies = () =>  {
 			<div className='app__rowmovie-top'>
 				<div className='app__rowmovie-top__title'>
 					<img src='/tranding.svg' alt='' />
-					<h1>Trending</h1>
+					<h1>{pathname == '/popular' ? 'Popular' : 'Trending'}</h1>
 				</div>
 				<div className='hr' />
 				<a href='#'>See more</a>
